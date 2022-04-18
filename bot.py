@@ -163,7 +163,7 @@ async def proxy_message_checker(message: Message):
     }
     try:
         sess = requests.Session()
-        sess.get(data['url'], proxies=proxies).status_code
+        sess.get('http://google.com', proxies=proxies).status_code
         await message.answer("Saved")
         await start_cmd(message)
     except Exception as e:
