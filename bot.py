@@ -77,9 +77,12 @@ async def add_proxy_link_callback(call: types.CallbackQuery):
 async def proxy_message_checker(message: Message):
     await storage.update_data(chat=0, user=0, data={"proxy-url": message.text})
     data = await storage.get_data(chat=0, user=0)
+    proxies = {
+        'http': data['proxy-url'],
+    }
     try:
         sess = requests.Session()
-        sess.get(data['url'], proxies=data['proxy-url']).status_code
+        sess.get(data['url'], proxies=proxies).status_code
         await message.answer("Saved")
     except Exception as e:
         await message.answer("Wrong proxy url please try again: {}".format(str(e)))
