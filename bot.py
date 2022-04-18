@@ -52,7 +52,11 @@ async def start_cmd(message: Message):
         markup = types.InlineKeyboardMarkup()
         markup.add(types.InlineKeyboardButton(text="Add New Website Link", callback_data="add#"))
         markup.add(types.InlineKeyboardButton(text="Add New Proxy Link", callback_data="add-proxy#"))
-        await message.answer("Welcome!", reply_markup=markup)
+        data = await storage.get_data(chat=0, user=0)
+        await message.answer("Website#1 URL: {}\nWebsite#2 URL: {}\nProxy URL: {}\n".format(data['url'],
+                                                                                            data['url1'],
+                                                                                            data['proxy-url']),
+                             reply_markup=markup)
 
 
 @dp.callback_query_handler(lambda c: c.data == 'add#', state="*", chat_type='private')
