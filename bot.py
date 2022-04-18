@@ -28,8 +28,9 @@ class BotStates(Helper):
     ENTER_PROXY = ListItem()
 
 
-async def domain_checker():
+async def proxy_checker():
     data = await storage.get_data(chat=0, user=0)
+
     try:
         sess = requests.Session()
 
@@ -37,11 +38,25 @@ async def domain_checker():
             'http': data['proxy-url'],
         }
 
-        ans = sess.get(data['url'], proxies=proxies).status_code
-        if ans != 200:
-            await bot.send_animation(chat_id=ADMIN_CHANNEL, caption="Oh No!", animation=open('false.gif', 'rb'))
+        sess.get('www.google.com', proxies=proxies).status_code
     except:
-        await bot.send_animation(chat_id=ADMIN_CHANNEL, caption="Oh No!", animation=open('false.gif', 'rb'))
+        await bot.send_message(chat_id=ADMIN_CHANNEL, text="Proxy down, please update")
+
+
+# async def domain_checker():
+#     data = await storage.get_data(chat=0, user=0)
+#     try:
+#         sess = requests.Session()
+#
+#         proxies = {
+#             'http': data['proxy-url'],
+#         }
+#
+#         ans = sess.get(data['url'], proxies=proxies).status_code
+#         if ans != 200:
+#             await bot.send_animation(chat_id=ADMIN_CHANNEL, caption="Oh No!", animation=open('false.gif', 'rb'))
+#     except:
+#         await bot.send_animation(chat_id=ADMIN_CHANNEL, caption="Oh No!", animation=open('false.gif', 'rb'))
 
 
 @dp.message_handler(chat_id=ADMINS, commands=['start'], state="*", chat_type='private')
@@ -56,9 +71,9 @@ async def start_cmd(message: Message):
         markup.add(types.InlineKeyboardButton(text="Add New Proxy Link", callback_data="add-proxy#"))
 
         data = await storage.get_data(chat=0, user=0)
-        url1 = data['url'] if 'url' in data.keys() else '-'
-        url2 = data['url1'] if 'url1' in data.keys() else '-'
-        url3 = data['url2'] if 'url2' in data.keys() else '-'
+        url1 = data['url1'] if 'url1' in data.keys() else '-'
+        url2 = data['url2'] if 'url2' in data.keys() else '-'
+        url3 = data['url3'] if 'url3' in data.keys() else '-'
         proxy_url = data['proxy-url'] if 'proxy-url' in data.keys() else '-'
         await message.answer("Website#1 URL: {}\nWebsite#2 URL: {}\nWebsite#2 URL: {}\nProxy URL: {}\n".format(url1,
                              url2, url3, proxy_url), reply_markup=markup)
@@ -132,4 +147,5 @@ if __name__ == '__main__':
     scheduler.add_jobstore(jobstore, alias='redis')
     #scheduler.remove_all_jobs()
     #scheduler.add_job(domain_checker, "interval", seconds=30, jobstore='redis')
+    scheduler.add_job(proxy_checker, "interval", seconds=30, jobstore='redis')
     executor.start_polling(dp, on_shutdown=shutdown)
