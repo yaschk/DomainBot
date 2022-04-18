@@ -24,8 +24,32 @@ dp.middleware.setup(LoggingMiddleware())
 
 class BotStates(Helper):
     mode = HelperMode.snake_case
-    ENTER_DOMAIN = ListItem()
+    ENTER_DOMAIN1 = ListItem()
+    ENTER_DOMAIN2 = ListItem()
+    ENTER_DOMAIN3 = ListItem()
     ENTER_PROXY = ListItem()
+
+
+async def save_domain(message):
+    state = dp.current_state(chat=message.chat.id, user=message.chat.id)
+    await state.set_state(None)
+    data = await storage.get_data(chat=0, user=0)
+
+    proxies = {
+        'http': data['proxy-url'],
+    }
+
+    try:
+
+        sess = requests.Session()
+
+        ans = sess.get(message.text, proxies=proxies).status_code
+        if ans != 200:
+            await bot.send_animation(chat_id=message.chat.id, caption="Oh No!", animation=open('false.gif', 'rb'))
+        else:
+            await bot.send_animation(chat_id=message.chat.id, caption="Oh Yes!", animation=open('true.gif', 'rb'))
+    except:
+        await bot.send_animation(chat_id=message.chat.id, caption="Oh No!", animation=open('false.gif', 'rb'))
 
 
 async def proxy_checker():
@@ -79,11 +103,20 @@ async def start_cmd(message: Message):
                              url2, url3, proxy_url), reply_markup=markup)
 
 
-@dp.callback_query_handler(lambda c: c.data == 'add#', state="*", chat_type='private')
+@dp.callback_query_handler(lambda c: c.data.startswith('add#'), state="*", chat_type='private')
 async def add_link_callback(call: types.CallbackQuery):
     state = dp.current_state(chat=call.message.chat.id, user=call.message.chat.id)
-    await state.set_state(BotStates.ENTER_DOMAIN[0])
-    await call.message.answer("Please enter new link:")
+
+    url_nmb = int(call.data.replace('add#', ''))
+    text = "Please enter new link for the website#{}:".format(url_nmb)
+
+    if url_nmb == 1:
+        await state.set_state(BotStates.ENTER_DOMAIN1[0])
+    elif url_nmb == 2:
+        await state.set_state(BotStates.ENTER_DOMAIN2[0])
+    else:
+        await state.set_state(BotStates.ENTER_DOMAIN3[0])
+    await call.message.answer(text)
     markup = types.InlineKeyboardMarkup()
     await call.message.edit_reply_markup(reply_markup=markup)
 
@@ -113,31 +146,22 @@ async def proxy_message_checker(message: Message):
         await message.answer("Wrong proxy url please try again:")
 
 
+@dp.message_handler(chat_id=ADMINS, state=BotStates.ENTER_DOMAIN1[0], chat_type='private')
+async def message_checker1(message: Message):
+    await storage.update_data(chat=0, user=0, data={"url1": message.text})
+    await save_domain(message)
 
 
+@dp.message_handler(chat_id=ADMINS, state=BotStates.ENTER_DOMAIN2[0], chat_type='private')
+async def message_checker2(message: Message):
+    await storage.update_data(chat=0, user=0, data={"url2": message.text})
+    await save_domain(message)
 
-@dp.message_handler(chat_id=ADMINS, state=BotStates.ENTER_DOMAIN[0], chat_type='private')
-async def message_checker(message: Message):
-    await storage.update_data(chat=0, user=0, data={"url": message.text})
-    state = dp.current_state(chat=message.chat.id, user=message.chat.id)
-    await state.set_state(None)
-    data = await storage.get_data(chat=0, user=0)
 
-    proxies = {
-        'http': data['proxy-url'],
-    }
-
-    try:
-
-        sess = requests.Session()
-
-        ans = sess.get(message.text, proxies=proxies).status_code
-        if ans != 200:
-            await bot.send_animation(chat_id=message.chat.id, caption="Oh No!", animation=open('false.gif', 'rb'))
-        else:
-            await bot.send_animation(chat_id=message.chat.id, caption="Oh Yes!", animation=open('true.gif', 'rb'))
-    except:
-        await bot.send_animation(chat_id=ADMIN_CHANNEL, caption="Oh No!", animation=open('false.gif', 'rb'))
+@dp.message_handler(chat_id=ADMINS, state=BotStates.ENTER_DOMAIN3[0], chat_type='private')
+async def message_checker3(message: Message):
+    await storage.update_data(chat=0, user=0, data={"url3": message.text})
+    await save_domain(message)
 
 
 async def shutdown(dispatcher: Dispatcher):
