@@ -38,9 +38,9 @@ async def proxy_checker():
             'http': data['proxy-url'],
         }
 
-        sess.get('www.google.com', proxies=proxies).status_code
-    except:
-        await bot.send_message(chat_id=ADMIN_CHANNEL, text="Proxy down, please update")
+        sess.get('google.com', proxies=proxies).status_code
+    except Exception as e:
+        await bot.send_message(chat_id=ADMIN_CHANNEL, text="Proxy down, please update {}".format(str(e)))
 
 
 # async def domain_checker():
@@ -145,7 +145,7 @@ if __name__ == '__main__':
     scheduler.start()
     jobstore = RedisJobStore(jobs_key='r-payments.jobs', run_times_key='r-prod.run_times')
     scheduler.add_jobstore(jobstore, alias='redis')
-    #scheduler.remove_all_jobs()
+    scheduler.remove_all_jobs()
     #scheduler.add_job(domain_checker, "interval", seconds=30, jobstore='redis')
     scheduler.add_job(proxy_checker, "interval", seconds=30, jobstore='redis')
     executor.start_polling(dp, on_shutdown=shutdown)
