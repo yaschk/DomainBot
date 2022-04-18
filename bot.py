@@ -123,7 +123,7 @@ async def start_cmd(message: Message):
         url2 = data['url2'] if 'url2' in data.keys() else '-'
         url3 = data['url3'] if 'url3' in data.keys() else '-'
         proxy_url = data['proxy-url'] if 'proxy-url' in data.keys() else '-'
-        await message.answer("Website#1 URL: {}\nWebsite#2 URL: {}\nWebsite#2 URL: {}\nProxy URL: {}\n".format(url1,
+        await message.answer("Website#1 URL: {}\nWebsite#2 URL: {}\nWebsite#3 URL: {}\nProxy URL: {}\n".format(url1,
                              url2, url3, proxy_url), reply_markup=markup)
 
 
