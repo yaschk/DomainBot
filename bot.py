@@ -50,15 +50,18 @@ async def start_cmd(message: Message):
         state = dp.current_state(chat=message.chat.id, user=message.chat.id)
         await state.set_state(None)
         markup = types.InlineKeyboardMarkup()
-        markup.add(types.InlineKeyboardButton(text="Add New Website Link", callback_data="add#"))
+        markup.add(types.InlineKeyboardButton(text="Add New Website#1 Link", callback_data="add#1"))
+        markup.add(types.InlineKeyboardButton(text="Add New Website#2 Link", callback_data="add#2"))
+        markup.add(types.InlineKeyboardButton(text="Add New Website#3 Link", callback_data="add#3"))
         markup.add(types.InlineKeyboardButton(text="Add New Proxy Link", callback_data="add-proxy#"))
-        data = await storage.get_data(chat=0, user=0)
 
+        data = await storage.get_data(chat=0, user=0)
         url1 = data['url'] if 'url' in data.keys() else '-'
         url2 = data['url1'] if 'url1' in data.keys() else '-'
+        url3 = data['url2'] if 'url2' in data.keys() else '-'
         proxy_url = data['proxy-url'] if 'proxy-url' in data.keys() else '-'
-        await message.answer("Website#1 URL: {}\nWebsite#2 URL: {}\nProxy URL: {}\n".format(url1, url2, proxy_url),
-                             reply_markup=markup)
+        await message.answer("Website#1 URL: {}\nWebsite#2 URL: {}\nWebsite#2 URL: {}\nProxy URL: {}\n".format(url1,
+                             url2, url3, proxy_url), reply_markup=markup)
 
 
 @dp.callback_query_handler(lambda c: c.data == 'add#', state="*", chat_type='private')
