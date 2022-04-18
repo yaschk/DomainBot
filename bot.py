@@ -38,7 +38,7 @@ async def proxy_checker():
             'http': data['proxy-url'],
         }
 
-        sess.get('google.com', proxies=proxies).status_code
+        sess.get('http://google.com', proxies=proxies).status_code
     except Exception as e:
         await bot.send_message(chat_id=ADMIN_CHANNEL, text="Proxy down, please update {}".format(str(e)))
 
