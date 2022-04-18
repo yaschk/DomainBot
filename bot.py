@@ -113,9 +113,9 @@ async def start_cmd(message: Message):
         state = dp.current_state(chat=message.chat.id, user=message.chat.id)
         await state.set_state(None)
         markup = types.InlineKeyboardMarkup()
-        markup.add(types.InlineKeyboardButton(text="Add New Website#1 Link", callback_data="add#1"))
-        markup.add(types.InlineKeyboardButton(text="Add New Website#2 Link", callback_data="add#2"))
-        markup.add(types.InlineKeyboardButton(text="Add New Website#3 Link", callback_data="add#3"))
+        markup.add(types.InlineKeyboardButton(text="Add New 24Win Link", callback_data="add#1"))
+        markup.add(types.InlineKeyboardButton(text="Add New Winb1r Link", callback_data="add#2"))
+        # markup.add(types.InlineKeyboardButton(text="Add New Website#3 Link", callback_data="add#3"))
         markup.add(types.InlineKeyboardButton(text="Add New Proxy Link", callback_data="add-proxy#"))
 
         data = await storage.get_data(chat=0, user=0)
