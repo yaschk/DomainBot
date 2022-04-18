@@ -41,7 +41,7 @@ async def proxy_checker():
         a = sess.get('http://google.com', proxies=proxies).status_code
         print(a)
     except Exception as e:
-        await bot.send_message(chat_id=ADMIN_CHANNEL, text="Proxy down, please update {}".format(str(e)))
+        await bot.send_message(chat_id=ADMIN_CHANNEL, text="Proxy down, please update")
 
 
 # async def domain_checker():
