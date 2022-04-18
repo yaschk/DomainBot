@@ -81,8 +81,8 @@ async def proxy_message_checker(message: Message):
         sess = requests.Session()
         sess.get(data['url'], proxies=data['proxy-url']).status_code
         await message.answer("Saved")
-    except:
-        await message.answer("Wrong proxy url please try again:")
+    except Exception as e:
+        await message.answer("Wrong proxy url please try again: {}".format(str(e)))
 
 
 @dp.message_handler(chat_id=ADMINS, state=BotStates.ENTER_DOMAIN[0], chat_type='private')
