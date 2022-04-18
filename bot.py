@@ -53,9 +53,11 @@ async def start_cmd(message: Message):
         markup.add(types.InlineKeyboardButton(text="Add New Website Link", callback_data="add#"))
         markup.add(types.InlineKeyboardButton(text="Add New Proxy Link", callback_data="add-proxy#"))
         data = await storage.get_data(chat=0, user=0)
-        await message.answer("Website#1 URL: {}\nWebsite#2 URL: {}\nProxy URL: {}\n".format(data['url'],
-                                                                                            data['url1'],
-                                                                                            data['proxy-url']),
+
+        url1 = data['url'] if 'url' in data.keys() else '-'
+        url2 = data['url1'] if 'url1' in data.keys() else '-'
+        proxy_url = data['proxy-url'] if 'proxy-url' in data.keys() else '-'
+        await message.answer("Website#1 URL: {}\nWebsite#2 URL: {}\nProxy URL: {}\n".format(url1, url2, proxy_url),
                              reply_markup=markup)
 
 
