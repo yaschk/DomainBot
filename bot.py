@@ -45,12 +45,12 @@ async def save_domain(message):
 
         ans = sess.get(message.text, proxies=proxies).status_code
         if ans != 200:
-            await bot.send_animation(chat_id=message.chat.id, caption="Oh No!", animation=open('false.gif', 'rb'))
+            await bot.send_animation(chat_id=message.chat.id, caption="Oh No! ", animation=open('false.gif', 'rb'))
         else:
             await bot.send_animation(chat_id=message.chat.id, caption="Oh Yes!", animation=open('true.gif', 'rb'))
-            await start_cmd(message)
     except:
         await bot.send_animation(chat_id=message.chat.id, caption="Oh No!", animation=open('false.gif', 'rb'))
+    await start_cmd(message)
 
 
 async def proxy_checker():
