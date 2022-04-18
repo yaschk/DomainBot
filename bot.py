@@ -10,10 +10,6 @@ from apscheduler.jobstores.redis import RedisJobStore
 import requests
 import config
 
-proxies = {
-    'http': config.proxy_link,
-}
-
 scheduler = AsyncIOScheduler()
 
 ADMINS = config.admins
@@ -29,12 +25,17 @@ dp.middleware.setup(LoggingMiddleware())
 class BotStates(Helper):
     mode = HelperMode.snake_case
     ENTER_DOMAIN = ListItem()
+    ENTER_PROXY = ListItem()
 
 
 async def domain_checker():
     data = await storage.get_data(chat=0, user=0)
     try:
         sess = requests.Session()
+
+        proxies = {
+            'http': data['proxy-url'],
+        }
 
         ans = sess.get(data['url'], proxies=proxies).status_code
         if ans != 200:
@@ -47,8 +48,10 @@ async def domain_checker():
 async def start_cmd(message: Message):
     if message.chat.id in ADMINS:
         state = dp.current_state(chat=message.chat.id, user=message.chat.id)
+        await state.set_state(None)
         markup = types.InlineKeyboardMarkup()
-        markup.add(types.InlineKeyboardButton(text="Add New Link", callback_data="add#"))
+        markup.add(types.InlineKeyboardButton(text="Add New Website Link", callback_data="add#"))
+        markup.add(types.InlineKeyboardButton(text="Add New Proxy Link", callback_data="add-proxy#"))
         await message.answer("Welcome!", reply_markup=markup)
 
 
@@ -61,12 +64,39 @@ async def add_link_callback(call: types.CallbackQuery):
     await call.message.edit_reply_markup(reply_markup=markup)
 
 
+@dp.callback_query_handler(lambda c: c.data == 'add-proxy#', state="*", chat_type='private')
+async def add_proxy_link_callback(call: types.CallbackQuery):
+    state = dp.current_state(chat=call.message.chat.id, user=call.message.chat.id)
+    await state.set_state(BotStates.ENTER_PROXY[0])
+    await call.message.answer("Please enter new proxy link:")
+    markup = types.InlineKeyboardMarkup()
+    await call.message.edit_reply_markup(reply_markup=markup)
+
+
+@dp.message_handler(chat_id=ADMINS, state=BotStates.ENTER_PROXY[0], chat_type='private')
+async def proxy_message_checker(message: Message):
+    await storage.update_data(chat=0, user=0, data={"proxy-url": message.text})
+    data = await storage.get_data(chat=0, user=0)
+    try:
+        sess = requests.Session()
+        sess.get(data['url'], proxies=message.text).status_code
+    except:
+        await message.answer("Wrong proxy url please try again:")
+
+
 @dp.message_handler(chat_id=ADMINS, state=BotStates.ENTER_DOMAIN[0], chat_type='private')
 async def message_checker(message: Message):
     await storage.update_data(chat=0, user=0, data={"url": message.text})
     state = dp.current_state(chat=message.chat.id, user=message.chat.id)
     await state.set_state(None)
+    data = await storage.get_data(chat=0, user=0)
+
+    proxies = {
+        'http': data['proxy-url'],
+    }
+
     try:
+
         sess = requests.Session()
 
         ans = sess.get(message.text, proxies=proxies).status_code
