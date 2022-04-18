@@ -48,6 +48,7 @@ async def save_domain(message):
             await bot.send_animation(chat_id=message.chat.id, caption="Oh No!", animation=open('false.gif', 'rb'))
         else:
             await bot.send_animation(chat_id=message.chat.id, caption="Oh Yes!", animation=open('true.gif', 'rb'))
+            await start_cmd(message)
     except:
         await bot.send_animation(chat_id=message.chat.id, caption="Oh No!", animation=open('false.gif', 'rb'))
 
@@ -67,20 +68,43 @@ async def proxy_checker():
         await bot.send_message(chat_id=ADMIN_CHANNEL, text="Proxy down, please update")
 
 
-# async def domain_checker():
-#     data = await storage.get_data(chat=0, user=0)
-#     try:
-#         sess = requests.Session()
-#
-#         proxies = {
-#             'http': data['proxy-url'],
-#         }
-#
-#         ans = sess.get(data['url'], proxies=proxies).status_code
-#         if ans != 200:
-#             await bot.send_animation(chat_id=ADMIN_CHANNEL, caption="Oh No!", animation=open('false.gif', 'rb'))
-#     except:
-#         await bot.send_animation(chat_id=ADMIN_CHANNEL, caption="Oh No!", animation=open('false.gif', 'rb'))
+async def domain_checker():
+    data = await storage.get_data(chat=0, user=0)
+
+    sess = requests.Session()
+
+    proxies = {
+        'http': data['proxy-url'],
+    }
+
+    if 'url1' in data.keys():
+        try:
+            ans = sess.get(data['url1'], proxies=proxies).status_code
+            if ans != 200:
+                await bot.send_animation(chat_id=ADMIN_CHANNEL, caption="Oh No! {}".format(data['url1']),
+                                         animation=open('false.gif', 'rb'))
+        except:
+            await bot.send_animation(chat_id=ADMIN_CHANNEL, caption="Oh No! {}".format(data['url1']),
+                                     animation=open('false.gif', 'rb'))
+    if 'url2' in data.keys():
+        try:
+            ans = sess.get(data['url2'], proxies=proxies).status_code
+            if ans != 200:
+                await bot.send_animation(chat_id=ADMIN_CHANNEL, caption="Oh No! {}".format(data['url2']),
+                                         animation=open('false.gif', 'rb'))
+        except:
+            await bot.send_animation(chat_id=ADMIN_CHANNEL, caption="Oh No! {}".format(data['url2']),
+                                     animation=open('false.gif', 'rb'))
+
+    if 'url3' in data.keys():
+        try:
+            ans = sess.get(data['url3'], proxies=proxies).status_code
+            if ans != 200:
+                await bot.send_animation(chat_id=ADMIN_CHANNEL, caption="Oh No! {}".format(data['url3']),
+                                         animation=open('false.gif', 'rb'))
+        except:
+            await bot.send_animation(chat_id=ADMIN_CHANNEL, caption="Oh No! {}".format(data['url3']),
+                                     animation=open('false.gif', 'rb'))
 
 
 @dp.message_handler(chat_id=ADMINS, commands=['start'], state="*", chat_type='private')
@@ -174,6 +198,6 @@ if __name__ == '__main__':
     jobstore = RedisJobStore(jobs_key='r-payments.jobs', run_times_key='r-prod.run_times')
     scheduler.add_jobstore(jobstore, alias='redis')
     scheduler.remove_all_jobs()
-    #scheduler.add_job(domain_checker, "interval", seconds=30, jobstore='redis')
+    scheduler.add_job(domain_checker, "interval", seconds=30, jobstore='redis')
     scheduler.add_job(proxy_checker, "interval", seconds=30, jobstore='redis')
     executor.start_polling(dp, on_shutdown=shutdown)
