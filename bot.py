@@ -39,7 +39,6 @@ async def proxy_checker():
         }
 
         a = sess.get('http://google.com', proxies=proxies).status_code
-        print(a)
     except Exception as e:
         await bot.send_message(chat_id=ADMIN_CHANNEL, text="Proxy down, please update")
 
@@ -109,8 +108,12 @@ async def proxy_message_checker(message: Message):
         sess = requests.Session()
         sess.get(data['url'], proxies=proxies).status_code
         await message.answer("Saved")
+        await start_cmd(message)
     except Exception as e:
-        await message.answer("Wrong proxy url please try again: {}".format(str(e)))
+        await message.answer("Wrong proxy url please try again:")
+
+
+
 
 
 @dp.message_handler(chat_id=ADMINS, state=BotStates.ENTER_DOMAIN[0], chat_type='private')
