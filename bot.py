@@ -1,0 +1,92 @@
+from aiogram.types import Message
+from aiogram import Bot, types
+from aiogram.dispatcher import Dispatcher
+from aiogram.utils import executor
+from aiogram.contrib.fsm_storage.redis import RedisStorage2
+from aiogram.utils.helper import Helper, HelperMode, ListItem
+from aiogram.contrib.middlewares.logging import LoggingMiddleware
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from apscheduler.jobstores.redis import RedisJobStore
+import requests
+import config
+
+proxies = {
+    'http': config.proxy_link,
+}
+
+scheduler = AsyncIOScheduler()
+
+ADMINS = config.admins
+ADMIN_CHANNEL = config.admin_channel
+
+
+bot = Bot(token=config.bot_token, parse_mode="HTML")
+storage = RedisStorage2('localhost', 6379, db=3)
+dp = Dispatcher(bot, storage=storage)
+dp.middleware.setup(LoggingMiddleware())
+
+
+class BotStates(Helper):
+    mode = HelperMode.snake_case
+    ENTER_DOMAIN = ListItem()
+
+
+async def domain_checker():
+    data = await storage.get_data(chat=0, user=0)
+    try:
+        sess = requests.Session()
+
+        ans = sess.get(data['url'], proxies=proxies).status_code
+        if ans != 200:
+            await bot.send_animation(chat_id=ADMIN_CHANNEL, caption="Oh No!", animation=open('false.gif', 'rb'))
+    except:
+        await bot.send_animation(chat_id=ADMIN_CHANNEL, caption="Oh No!", animation=open('false.gif', 'rb'))
+
+
+@dp.message_handler(chat_id=ADMINS, commands=['start'], state="*", chat_type='private')
+async def start_cmd(message: Message):
+    if message.chat.id in ADMINS:
+        state = dp.current_state(chat=message.chat.id, user=message.chat.id)
+        markup = types.InlineKeyboardMarkup()
+        markup.add(types.InlineKeyboardButton(text="Add New Link", callback_data="add#"))
+        await message.answer("Welcome!", reply_markup=markup)
+
+
+@dp.callback_query_handler(lambda c: c.data == 'add#', state="*", chat_type='private')
+async def add_link_callback(call: types.CallbackQuery):
+    state = dp.current_state(chat=call.message.chat.id, user=call.message.chat.id)
+    await state.set_state(BotStates.ENTER_DOMAIN[0])
+    await call.message.answer("Please enter new link:")
+    markup = types.InlineKeyboardMarkup()
+    await call.message.edit_reply_markup(reply_markup=markup)
+
+
+@dp.message_handler(chat_id=ADMINS, state=BotStates.ENTER_DOMAIN[0], chat_type='private')
+async def message_checker(message: Message):
+    await storage.update_data(chat=0, user=0, data={"url": message.text})
+    state = dp.current_state(chat=message.chat.id, user=message.chat.id)
+    await state.set_state(None)
+    try:
+        sess = requests.Session()
+
+        ans = sess.get(message.text, proxies=proxies).status_code
+        if ans != 200:
+            await bot.send_animation(chat_id=message.chat.id, caption="Oh No!", animation=open('false.gif', 'rb'))
+        else:
+            await bot.send_animation(chat_id=message.chat.id, caption="Oh Yes!", animation=open('true.gif', 'rb'))
+    except:
+        await bot.send_animation(chat_id=ADMIN_CHANNEL, caption="Oh No!", animation=open('false.gif', 'rb'))
+
+
+async def shutdown(dispatcher: Dispatcher):
+    await dispatcher.storage.close()
+    await dispatcher.storage.wait_closed()
+
+
+if __name__ == '__main__':
+    scheduler.start()
+    jobstore = RedisJobStore(jobs_key='r-payments.jobs', run_times_key='r-prod.run_times')
+    scheduler.add_jobstore(jobstore, alias='redis')
+    #scheduler.remove_all_jobs()
+    #scheduler.add_job(domain_checker, "interval", seconds=30, jobstore='redis')
+    executor.start_polling(dp, on_shutdown=shutdown)
