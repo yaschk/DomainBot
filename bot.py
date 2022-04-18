@@ -79,7 +79,8 @@ async def proxy_message_checker(message: Message):
     data = await storage.get_data(chat=0, user=0)
     try:
         sess = requests.Session()
-        sess.get(data['url'], proxies=message.text).status_code
+        sess.get(data['url'], proxies=data['proxy-url']).status_code
+        await message.answer("Saved")
     except:
         await message.answer("Wrong proxy url please try again:")
 
