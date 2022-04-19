@@ -62,7 +62,7 @@ async def save_domain(message):
             await bot.send_animation(chat_id=message.chat.id, caption="Oh Yes!", animation=open('true.gif', 'rb'))
     except Exception as e:
         await bot.send_animation(chat_id=message.chat.id, caption="Oh No!", animation=open('false.gif', 'rb'))
-        await bot.send_message(config.admins[0], "save domain error - {}".format(str(e)))
+        await bot.send_message(chat_id=config.admins[0], text="save domain error - {}".format(str(e)))
     await start_cmd(message)
 
 
