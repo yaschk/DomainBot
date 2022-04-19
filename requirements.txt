@@ -3,3 +3,5 @@ redis
 aioredis
 requests
 apscheduler
+webdriver-manager
+beautifulsoup4

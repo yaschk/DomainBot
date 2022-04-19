@@ -9,6 +9,11 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.jobstores.redis import RedisJobStore
 import requests
 import config
+import bs4 as bs
+from selenium import webdriver
+from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.common.proxy import *
+from selenium.webdriver.firefox.options import Options
 
 scheduler = AsyncIOScheduler()
 
@@ -35,21 +40,29 @@ async def save_domain(message):
     await state.set_state(None)
     data = await storage.get_data(chat=0, user=0)
 
-    proxies = {
-        'http': data['proxy-url'],
-    }
+    proxy = Proxy({
+        'proxyType': ProxyType.MANUAL,
+        'httpProxy': data['proxy-url'],
+        'sslProxy': data['proxy-url'],
+        'noProxy': ''})
 
     try:
+        options = Options()
+        options.proxy = proxy
 
-        sess = requests.Session()
+        browser = webdriver.Chrome(ChromeDriverManager().install())
+        browser.get(message.text)
+        sauce = browser.page_source
+        browser.quit()
+        soup = bs.BeautifulSoup(sauce, 'lxml')
 
-        ans = sess.get(message.text, proxies=proxies).status_code
-        if ans != 200:
+        if soup.find("body", {"id": "trader-win24"}) is None:
             await bot.send_animation(chat_id=message.chat.id, caption="Oh No! ", animation=open('false.gif', 'rb'))
         else:
             await bot.send_animation(chat_id=message.chat.id, caption="Oh Yes!", animation=open('true.gif', 'rb'))
-    except:
+    except Exception as e:
         await bot.send_animation(chat_id=message.chat.id, caption="Oh No!", animation=open('false.gif', 'rb'))
+        await bot.send_message(config.admins[0], "save domain error - {}".format(str(e)))
     await start_cmd(message)
 
 
@@ -66,6 +79,7 @@ async def proxy_checker():
         a = sess.get('http://google.com', proxies=proxies).status_code
     except Exception as e:
         await bot.send_message(chat_id=ADMIN_CHANNEL, text="Proxy down, please update")
+        await bot.send_message(config.admins[0], "proxy checker error - {}".format(str(e)))
 
 
 async def domain_checker():
@@ -79,32 +93,36 @@ async def domain_checker():
 
     if 'url1' in data.keys():
         try:
-            ans = sess.get(data['url1'], proxies=proxies).status_code
-            if ans != 200:
+            ans = sess.get(data['url1'], proxies=proxies)
+            if ans.status_code != 200:
                 await bot.send_animation(chat_id=ADMIN_CHANNEL, caption="Oh No! {}".format(data['url1']),
                                          animation=open('false.gif', 'rb'))
-        except:
+            else:
+                print(ans.text)
+        except Exception as e:
             await bot.send_animation(chat_id=ADMIN_CHANNEL, caption="Oh No! {}".format(data['url1']),
                                      animation=open('false.gif', 'rb'))
+            await bot.send_message(config.admins[0], "url1 error - {}".format(str(e)))
     if 'url2' in data.keys():
         try:
             ans = sess.get(data['url2'], proxies=proxies).status_code
             if ans != 200:
                 await bot.send_animation(chat_id=ADMIN_CHANNEL, caption="Oh No! {}".format(data['url2']),
                                          animation=open('false.gif', 'rb'))
-        except:
+        except Exception as e:
             await bot.send_animation(chat_id=ADMIN_CHANNEL, caption="Oh No! {}".format(data['url2']),
                                      animation=open('false.gif', 'rb'))
-
+            await bot.send_message(config.admins[0], "url2 error - {}".format(str(e)))
     if 'url3' in data.keys():
         try:
             ans = sess.get(data['url3'], proxies=proxies).status_code
             if ans != 200:
                 await bot.send_animation(chat_id=ADMIN_CHANNEL, caption="Oh No! {}".format(data['url3']),
                                          animation=open('false.gif', 'rb'))
-        except:
+        except Exception as e:
             await bot.send_animation(chat_id=ADMIN_CHANNEL, caption="Oh No! {}".format(data['url3']),
                                      animation=open('false.gif', 'rb'))
+            await bot.send_message(config.admins[0], "url3 error - {}".format(str(e)))
 
 
 @dp.message_handler(chat_id=ADMINS, commands=['start'], state="*", chat_type='private')
@@ -198,6 +216,6 @@ if __name__ == '__main__':
     jobstore = RedisJobStore(jobs_key='r-payments.jobs', run_times_key='r-prod.run_times')
     scheduler.add_jobstore(jobstore, alias='redis')
     scheduler.remove_all_jobs()
-    scheduler.add_job(domain_checker, "interval", seconds=30, jobstore='redis')
-    scheduler.add_job(proxy_checker, "interval", seconds=30, jobstore='redis')
+    # scheduler.add_job(domain_checker, "interval", seconds=30, jobstore='redis')
+    # scheduler.add_job(proxy_checker, "interval", seconds=30, jobstore='redis')
     executor.start_polling(dp, on_shutdown=shutdown)
