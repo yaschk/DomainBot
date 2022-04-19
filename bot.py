@@ -60,7 +60,7 @@ async def save_domain(message):
         browser.quit()
         soup = bs.BeautifulSoup(sauce, 'lxml')
 
-        if soup.find("body", {"id": "trader-win24"}) is None:
+        if soup.find("body", {"id": "trader-win24"}) is None and soup.find("body", {"id": "trader-winbir"}) is None:
             await bot.send_animation(chat_id=message.chat.id, caption="Oh No! ", animation=open('false.gif', 'rb'))
         else:
             await bot.send_animation(chat_id=message.chat.id, caption="Oh Yes!", animation=open('true.gif', 'rb'))
@@ -89,28 +89,54 @@ async def proxy_checker():
 async def domain_checker():
     data = await storage.get_data(chat=0, user=0)
 
-    sess = requests.Session()
-
-    proxies = {
-        'http': data['proxy-url'],
-    }
-
     if 'url1' in data.keys():
         try:
-            ans = sess.get(data['url1'], proxies=proxies)
-            if ans.status_code != 200:
+            proxy = Proxy({
+                'proxyType': ProxyType.MANUAL,
+                'httpProxy': data['proxy-url'],
+                'sslProxy': data['proxy-url'],
+                'noProxy': ''})
+
+            options = Options()
+            options.proxy = proxy
+
+            display = Display(visible=0, size=(800, 800))
+            display.start()
+
+            browser = webdriver.Chrome(ChromeDriverManager().install())
+            browser.get(data['url1'])
+            sauce = browser.page_source
+            browser.quit()
+            soup = bs.BeautifulSoup(sauce, 'lxml')
+
+            if soup.find("body", {"id": "trader-win24"}) is None and soup.find("body", {"id": "trader-winbir"}) is None:
                 await bot.send_animation(chat_id=ADMIN_CHANNEL, caption="Oh No! {}".format(data['url1']),
                                          animation=open('false.gif', 'rb'))
-            else:
-                print(ans.text)
         except Exception as e:
             await bot.send_animation(chat_id=ADMIN_CHANNEL, caption="Oh No! {}".format(data['url1']),
                                      animation=open('false.gif', 'rb'))
             await bot.send_message(config.admins[0], "url1 error - {}".format(str(e)))
     if 'url2' in data.keys():
         try:
-            ans = sess.get(data['url2'], proxies=proxies).status_code
-            if ans != 200:
+            proxy = Proxy({
+                'proxyType': ProxyType.MANUAL,
+                'httpProxy': data['proxy-url'],
+                'sslProxy': data['proxy-url'],
+                'noProxy': ''})
+
+            options = Options()
+            options.proxy = proxy
+
+            display = Display(visible=0, size=(800, 800))
+            display.start()
+
+            browser = webdriver.Chrome(ChromeDriverManager().install())
+            browser.get(data['url2'])
+            sauce = browser.page_source
+            browser.quit()
+            soup = bs.BeautifulSoup(sauce, 'lxml')
+
+            if soup.find("body", {"id": "trader-win24"}) is None and soup.find("body", {"id": "trader-winbir"}) is None:
                 await bot.send_animation(chat_id=ADMIN_CHANNEL, caption="Oh No! {}".format(data['url2']),
                                          animation=open('false.gif', 'rb'))
         except Exception as e:
@@ -119,8 +145,25 @@ async def domain_checker():
             await bot.send_message(config.admins[0], "url2 error - {}".format(str(e)))
     if 'url3' in data.keys():
         try:
-            ans = sess.get(data['url3'], proxies=proxies).status_code
-            if ans != 200:
+            proxy = Proxy({
+                'proxyType': ProxyType.MANUAL,
+                'httpProxy': data['proxy-url'],
+                'sslProxy': data['proxy-url'],
+                'noProxy': ''})
+
+            options = Options()
+            options.proxy = proxy
+
+            display = Display(visible=0, size=(800, 800))
+            display.start()
+
+            browser = webdriver.Chrome(ChromeDriverManager().install())
+            browser.get(data['url3'])
+            sauce = browser.page_source
+            browser.quit()
+            soup = bs.BeautifulSoup(sauce, 'lxml')
+
+            if soup.find("body", {"id": "trader-win24"}) is None and soup.find("body", {"id": "trader-winbir"}) is None:
                 await bot.send_animation(chat_id=ADMIN_CHANNEL, caption="Oh No! {}".format(data['url3']),
                                          animation=open('false.gif', 'rb'))
         except Exception as e:
