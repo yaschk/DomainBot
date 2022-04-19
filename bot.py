@@ -112,7 +112,11 @@ async def domain_checker():
             if soup.find("body", {"id": "trader-win24"}) is None and soup.find("body", {"id": "trader-winbir"}) is None:
                 await bot.send_animation(chat_id=ADMIN_CHANNEL, caption="Oh No! {}".format(data['url1']),
                                          animation=open('false.gif', 'rb'))
+            else:
+                await bot.send_message(config.admins[0], "url1 works")
         except Exception as e:
+            with open('logs.txt' 'a') as f:
+                f.write(str(e) + "\n\n")
             await bot.send_animation(chat_id=ADMIN_CHANNEL, caption="Oh No! {}".format(data['url1']),
                                      animation=open('false.gif', 'rb'))
             await bot.send_message(config.admins[0], "url1 error - {}".format(str(e)))
@@ -139,7 +143,11 @@ async def domain_checker():
             if soup.find("body", {"id": "trader-win24"}) is None and soup.find("body", {"id": "trader-winbir"}) is None:
                 await bot.send_animation(chat_id=ADMIN_CHANNEL, caption="Oh No! {}".format(data['url2']),
                                          animation=open('false.gif', 'rb'))
+            else:
+                await bot.send_message(config.admins[0], "url2 works")
         except Exception as e:
+            with open('logs.txt' 'a') as f:
+                f.write(str(e) + "\n\n")
             await bot.send_animation(chat_id=ADMIN_CHANNEL, caption="Oh No! {}".format(data['url2']),
                                      animation=open('false.gif', 'rb'))
             await bot.send_message(config.admins[0], "url2 error - {}".format(str(e)))
@@ -166,7 +174,11 @@ async def domain_checker():
             if soup.find("body", {"id": "trader-win24"}) is None and soup.find("body", {"id": "trader-winbir"}) is None:
                 await bot.send_animation(chat_id=ADMIN_CHANNEL, caption="Oh No! {}".format(data['url3']),
                                          animation=open('false.gif', 'rb'))
+            else:
+                await bot.send_message(config.admins[0], "url3 works")
         except Exception as e:
+            with open('logs.txt' 'a') as f:
+                f.write(str(e) + "\n\n")
             await bot.send_animation(chat_id=ADMIN_CHANNEL, caption="Oh No! {}".format(data['url3']),
                                      animation=open('false.gif', 'rb'))
             await bot.send_message(config.admins[0], "url3 error - {}".format(str(e)))
@@ -262,7 +274,7 @@ if __name__ == '__main__':
     scheduler.start()
     jobstore = RedisJobStore(jobs_key='r-payments.jobs', run_times_key='r-prod.run_times')
     scheduler.add_jobstore(jobstore, alias='redis')
-    scheduler.remove_all_jobs()
-    scheduler.add_job(domain_checker, "interval", seconds=30, jobstore='redis')
-    scheduler.add_job(proxy_checker, "interval", seconds=30, jobstore='redis')
+    #scheduler.remove_all_jobs()
+    #scheduler.add_job(domain_checker, "interval", seconds=30, jobstore='redis')
+    #scheduler.add_job(proxy_checker, "interval", seconds=30, jobstore='redis')
     executor.start_polling(dp, on_shutdown=shutdown)
