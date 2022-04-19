@@ -263,6 +263,6 @@ if __name__ == '__main__':
     jobstore = RedisJobStore(jobs_key='r-payments.jobs', run_times_key='r-prod.run_times')
     scheduler.add_jobstore(jobstore, alias='redis')
     scheduler.remove_all_jobs()
-    # scheduler.add_job(domain_checker, "interval", seconds=30, jobstore='redis')
-    # scheduler.add_job(proxy_checker, "interval", seconds=30, jobstore='redis')
+    scheduler.add_job(domain_checker, "interval", seconds=30, jobstore='redis')
+    scheduler.add_job(proxy_checker, "interval", seconds=30, jobstore='redis')
     executor.start_polling(dp, on_shutdown=shutdown)
