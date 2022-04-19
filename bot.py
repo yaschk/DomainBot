@@ -53,7 +53,6 @@ async def save_domain(message):
 
         display = Display(visible=0, size=(800, 800))
         display.start()
-        driver = webdriver.Chrome()
 
         browser = webdriver.Chrome(ChromeDriverManager().install())
         browser.get(message.text)
