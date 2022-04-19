@@ -14,6 +14,7 @@ from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.proxy import *
 from selenium.webdriver.firefox.options import Options
+from pyvirtualdisplay import Display
 
 scheduler = AsyncIOScheduler()
 
@@ -49,6 +50,10 @@ async def save_domain(message):
     try:
         options = Options()
         options.proxy = proxy
+
+        display = Display(visible=0, size=(800, 800))
+        display.start()
+        driver = webdriver.Chrome()
 
         browser = webdriver.Chrome(ChromeDriverManager().install())
         browser.get(message.text)
