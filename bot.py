@@ -87,117 +87,122 @@ async def proxy_checker():
 
 
 async def domain_checker():
-    data = await storage.get_data(chat=0, user=0)
+    try:
+        data = await storage.get_data(chat=0, user=0)
 
-    proxy = Proxy({
-        'proxyType': ProxyType.MANUAL,
-        'httpProxy': data['proxy-url'],
-        'sslProxy': data['proxy-url'],
-        'noProxy': ''})
+        proxy = Proxy({
+            'proxyType': ProxyType.MANUAL,
+            'httpProxy': data['proxy-url'],
+            'sslProxy': data['proxy-url'],
+            'noProxy': ''})
 
-    options = Options()
-    options.proxy = proxy
+        options = Options()
+        options.proxy = proxy
 
-    display = Display(visible=0, size=(800, 800))
-    display.start()
+        display = Display(visible=0, size=(800, 800))
+        display.start()
 
-    browser = webdriver.Chrome(ChromeDriverManager().install())
+        browser = webdriver.Chrome(ChromeDriverManager().install())
 
-    if 'url1' in data.keys():
-        try:
-            # proxy = Proxy({
-            #     'proxyType': ProxyType.MANUAL,
-            #     'httpProxy': data['proxy-url'],
-            #     'sslProxy': data['proxy-url'],
-            #     'noProxy': ''})
-            #
-            # options = Options()
-            # options.proxy = proxy
-            #
-            # display = Display(visible=0, size=(800, 800))
-            # display.start()
-            #
-            # browser = webdriver.Chrome(ChromeDriverManager().install())
-            browser.get(data['url1'])
-            sauce = browser.page_source
-            # browser.quit()
-            soup = bs.BeautifulSoup(sauce, 'lxml')
+        if 'url1' in data.keys():
+            try:
+                # proxy = Proxy({
+                #     'proxyType': ProxyType.MANUAL,
+                #     'httpProxy': data['proxy-url'],
+                #     'sslProxy': data['proxy-url'],
+                #     'noProxy': ''})
+                #
+                # options = Options()
+                # options.proxy = proxy
+                #
+                # display = Display(visible=0, size=(800, 800))
+                # display.start()
+                #
+                # browser = webdriver.Chrome(ChromeDriverManager().install())
+                browser.get(data['url1'])
+                sauce = browser.page_source
+                # browser.quit()
+                soup = bs.BeautifulSoup(sauce, 'lxml')
 
-            if soup.find("body", {"id": "trader-win24"}) is None and soup.find("body", {"id": "trader-winbir"}) is None:
+                if soup.find("body", {"id": "trader-win24"}) is None and soup.find("body", {"id": "trader-winbir"}) is None:
+                    await bot.send_animation(chat_id=ADMIN_CHANNEL, caption="Oh No! {}".format(data['url1']),
+                                             animation=open('false.gif', 'rb'))
+                else:
+                    await bot.send_message(config.admins[0], "url1 works")
+            except Exception as e:
+                with open('logs.txt' 'a') as f:
+                    f.write(str(e) + "\n\n")
                 await bot.send_animation(chat_id=ADMIN_CHANNEL, caption="Oh No! {}".format(data['url1']),
                                          animation=open('false.gif', 'rb'))
-            else:
-                await bot.send_message(config.admins[0], "url1 works")
-        except Exception as e:
-            with open('logs.txt' 'a') as f:
-                f.write(str(e) + "\n\n")
-            await bot.send_animation(chat_id=ADMIN_CHANNEL, caption="Oh No! {}".format(data['url1']),
-                                     animation=open('false.gif', 'rb'))
-            await bot.send_message(config.admins[0], "url1 error - {}".format(str(e)))
-    if 'url2' in data.keys():
-        try:
-            # proxy = Proxy({
-            #     'proxyType': ProxyType.MANUAL,
-            #     'httpProxy': data['proxy-url'],
-            #     'sslProxy': data['proxy-url'],
-            #     'noProxy': ''})
-            #
-            # options = Options()
-            # options.proxy = proxy
-            #
-            # display = Display(visible=0, size=(800, 800))
-            # display.start()
-            #
-            # browser = webdriver.Chrome(ChromeDriverManager().install())
-            browser.get(data['url2'])
-            sauce = browser.page_source
-            # browser.quit()
-            soup = bs.BeautifulSoup(sauce, 'lxml')
+                await bot.send_message(config.admins[0], "url1 error - {}".format(str(e)))
+        if 'url2' in data.keys():
+            try:
+                # proxy = Proxy({
+                #     'proxyType': ProxyType.MANUAL,
+                #     'httpProxy': data['proxy-url'],
+                #     'sslProxy': data['proxy-url'],
+                #     'noProxy': ''})
+                #
+                # options = Options()
+                # options.proxy = proxy
+                #
+                # display = Display(visible=0, size=(800, 800))
+                # display.start()
+                #
+                # browser = webdriver.Chrome(ChromeDriverManager().install())
+                browser.get(data['url2'])
+                sauce = browser.page_source
+                # browser.quit()
+                soup = bs.BeautifulSoup(sauce, 'lxml')
 
-            if soup.find("body", {"id": "trader-win24"}) is None and soup.find("body", {"id": "trader-winbir"}) is None:
+                if soup.find("body", {"id": "trader-win24"}) is None and soup.find("body", {"id": "trader-winbir"}) is None:
+                    await bot.send_animation(chat_id=ADMIN_CHANNEL, caption="Oh No! {}".format(data['url2']),
+                                             animation=open('false.gif', 'rb'))
+                else:
+                    await bot.send_message(config.admins[0], "url2 works")
+            except Exception as e:
+                with open('logs.txt' 'a') as f:
+                    f.write(str(e) + "\n\n")
                 await bot.send_animation(chat_id=ADMIN_CHANNEL, caption="Oh No! {}".format(data['url2']),
                                          animation=open('false.gif', 'rb'))
-            else:
-                await bot.send_message(config.admins[0], "url2 works")
-        except Exception as e:
-            with open('logs.txt' 'a') as f:
-                f.write(str(e) + "\n\n")
-            await bot.send_animation(chat_id=ADMIN_CHANNEL, caption="Oh No! {}".format(data['url2']),
-                                     animation=open('false.gif', 'rb'))
-            await bot.send_message(config.admins[0], "url2 error - {}".format(str(e)))
-    if 'url3' in data.keys():
-        try:
-            # proxy = Proxy({
-            #     'proxyType': ProxyType.MANUAL,
-            #     'httpProxy': data['proxy-url'],
-            #     'sslProxy': data['proxy-url'],
-            #     'noProxy': ''})
-            #
-            # options = Options()
-            # options.proxy = proxy
-            #
-            # display = Display(visible=0, size=(800, 800))
-            # display.start()
-            #
-            # browser = webdriver.Chrome(ChromeDriverManager().install())
-            browser.get(data['url3'])
-            sauce = browser.page_source
-            # browser.quit()
-            soup = bs.BeautifulSoup(sauce, 'lxml')
+                await bot.send_message(config.admins[0], "url2 error - {}".format(str(e)))
+        if 'url3' in data.keys():
+            try:
+                # proxy = Proxy({
+                #     'proxyType': ProxyType.MANUAL,
+                #     'httpProxy': data['proxy-url'],
+                #     'sslProxy': data['proxy-url'],
+                #     'noProxy': ''})
+                #
+                # options = Options()
+                # options.proxy = proxy
+                #
+                # display = Display(visible=0, size=(800, 800))
+                # display.start()
+                #
+                # browser = webdriver.Chrome(ChromeDriverManager().install())
+                browser.get(data['url3'])
+                sauce = browser.page_source
+                # browser.quit()
+                soup = bs.BeautifulSoup(sauce, 'lxml')
 
-            if soup.find("body", {"id": "trader-win24"}) is None and soup.find("body", {"id": "trader-winbir"}) is None:
+                if soup.find("body", {"id": "trader-win24"}) is None and soup.find("body", {"id": "trader-winbir"}) is None:
+                    await bot.send_animation(chat_id=ADMIN_CHANNEL, caption="Oh No! {}".format(data['url3']),
+                                             animation=open('false.gif', 'rb'))
+                else:
+                    await bot.send_message(config.admins[0], "url3 works")
+
+            except Exception as e:
+                with open('logs.txt' 'a') as f:
+                    f.write(str(e) + "\n\n")
                 await bot.send_animation(chat_id=ADMIN_CHANNEL, caption="Oh No! {}".format(data['url3']),
                                          animation=open('false.gif', 'rb'))
-            else:
-                await bot.send_message(config.admins[0], "url3 works")
+                await bot.send_message(config.admins[0], "url3 error - {}".format(str(e)))
+        browser.quit()
+    except Exception as e:
+        with open('logs.txt' 'a') as f:
+            f.write(str(e) + "main\n\n")
 
-        except Exception as e:
-            with open('logs.txt' 'a') as f:
-                f.write(str(e) + "\n\n")
-            await bot.send_animation(chat_id=ADMIN_CHANNEL, caption="Oh No! {}".format(data['url3']),
-                                     animation=open('false.gif', 'rb'))
-            await bot.send_message(config.admins[0], "url3 error - {}".format(str(e)))
-    browser.quit()
 
 @dp.message_handler(chat_id=ADMINS, commands=['start'], state="*", chat_type='private')
 async def start_cmd(message: Message):
@@ -290,6 +295,6 @@ if __name__ == '__main__':
     jobstore = RedisJobStore(jobs_key='r-payments.jobs', run_times_key='r-prod.run_times')
     scheduler.add_jobstore(jobstore, alias='redis')
     scheduler.remove_all_jobs()
-    scheduler.add_job(domain_checker, "interval", minutes=1, jobstore='redis')
-    scheduler.add_job(proxy_checker, "interval", minutes=1, jobstore='redis')
+    scheduler.add_job(domain_checker, "interval", minutes=2, jobstore='redis')
+    # scheduler.add_job(proxy_checker, "interval", minutes=2, jobstore='redis')
     executor.start_polling(dp, on_shutdown=shutdown)
