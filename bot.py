@@ -90,14 +90,19 @@ async def domain_checker():
     try:
         data = await storage.get_data(chat=0, user=0)
 
-        # proxy = Proxy({
-        #     'proxyType': ProxyType.MANUAL,
-        #     'httpProxy': data['proxy-url'],
-        #     'sslProxy': data['proxy-url'],
-        #     'noProxy': ''})
+        if 'counter' not in data.keys() or data['counter'] == 1:
 
-        # options = Options()
-        # options.proxy = proxy
+            proxy = Proxy({
+                'proxyType': ProxyType.MANUAL,
+                'httpProxy': data['proxy-url'],
+                'sslProxy': data['proxy-url'],
+                'noProxy': ''})
+
+            options = Options()
+            options.proxy = proxy
+
+            await storage.update_data(chat=0, user=0, data={'counter': 0})
+            await bot.send_message(config.admins[0], "with proxy")
 
         display = Display(visible=0, size=(800, 800))
         display.start()
@@ -199,6 +204,8 @@ async def domain_checker():
                                          animation=open('false.gif', 'rb'))
                 await bot.send_message(config.admins[0], "url3 error - {}".format(str(e)))
         browser.quit()
+        if data['counter'] == 0:
+            await storage.update_data(chat=0, user=0, data={'counter': 1})
     except Exception as e:
         with open('logs.txt' 'a') as f:
             f.write(str(e) + "main\n\n")
