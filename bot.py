@@ -90,14 +90,14 @@ async def domain_checker():
     try:
         data = await storage.get_data(chat=0, user=0)
 
-        proxy = Proxy({
-            'proxyType': ProxyType.MANUAL,
-            'httpProxy': data['proxy-url'],
-            'sslProxy': data['proxy-url'],
-            'noProxy': ''})
+        # proxy = Proxy({
+        #     'proxyType': ProxyType.MANUAL,
+        #     'httpProxy': data['proxy-url'],
+        #     'sslProxy': data['proxy-url'],
+        #     'noProxy': ''})
 
-        options = Options()
-        options.proxy = proxy
+        # options = Options()
+        # options.proxy = proxy
 
         display = Display(visible=0, size=(800, 800))
         display.start()
@@ -295,6 +295,6 @@ if __name__ == '__main__':
     jobstore = RedisJobStore(jobs_key='r-payments.jobs', run_times_key='r-prod.run_times')
     scheduler.add_jobstore(jobstore, alias='redis')
     scheduler.remove_all_jobs()
-    scheduler.add_job(domain_checker, "interval", minutes=2, jobstore='redis')
+    scheduler.add_job(domain_checker, "interval", minutes=1, jobstore='redis')
     # scheduler.add_job(proxy_checker, "interval", minutes=2, jobstore='redis')
     executor.start_polling(dp, on_shutdown=shutdown)
